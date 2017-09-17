@@ -4,6 +4,7 @@ import Html exposing (Html)
 import Json.Decode as Decode exposing (Value)
 import Navigation exposing (Location)
 import Page.About as About
+import Page.Errored as Errored exposing (PageLoadError)
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Route exposing (..)
@@ -14,8 +15,7 @@ import View.Page as Page exposing (ActivePage)
 
 
 type alias Model =
-    { page : Page
-    }
+    { pageState : PageState }
 
 
 type Page
@@ -23,6 +23,12 @@ type Page
     | NotFound
     | Home Home.Model
     | About About.Model
+    | Errored PageLoadError
+
+
+type PageState
+    = Loaded Page
+    | TransitioningFrom Page
 
 
 
@@ -37,21 +43,34 @@ type Msg
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute route model =
+    let
+        errored =
+            pageErrored model
+    in
     case route of
         Nothing ->
             -- TODO Load 404 page not found
             ( model, Cmd.none )
 
         Just Route.Home ->
-            ( { model | page = Home Home.init }, Cmd.none )
+            ( { model | pageState = Loaded (Home Home.init) }, Cmd.none )
 
         Just Route.About ->
-            ( { model | page = About About.init }, Cmd.none )
+            ( { model | pageState = Loaded (About About.init) }, Cmd.none )
+
+
+pageErrored : Model -> ActivePage -> String -> ( Model, Cmd msg )
+pageErrored model activePage errorMessage =
+    let
+        error =
+            Errored.pageLoadError activePage errorMessage
+    in
+    { model | pageState = Loaded (Errored error) } ! []
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    updatePage model.page msg model
+    updatePage (getPage model.pageState) msg model
 
 
 updatePage : Page -> Msg -> Model -> ( Model, Cmd Msg )
@@ -62,7 +81,7 @@ updatePage page msg model =
                 ( newModel, newCmd ) =
                     subUpdate subMsg subModel
             in
-            ( { model | page = toModel newModel }, Cmd.map toMsg newCmd )
+            ( { model | pageState = Loaded (toModel newModel) }, Cmd.map toMsg newCmd )
     in
     case ( msg, page ) of
         -- Update for page transitions
@@ -86,17 +105,37 @@ updatePage page msg model =
             model ! []
 
 
+getPage : PageState -> Page
+getPage pageState =
+    case pageState of
+        Loaded page ->
+            page
+
+        TransitioningFrom page ->
+            page
+
+
 
 ---- VIEW ----
 
 
 view : Model -> Html Msg
 view model =
+    case model.pageState of
+        Loaded page ->
+            viewPage False page
+
+        TransitioningFrom page ->
+            viewPage True page
+
+
+viewPage : Bool -> Page -> Html Msg
+viewPage isLoading page =
     let
         layout =
             Page.layout
     in
-    case model.page of
+    case page of
         NotFound ->
             layout Page.Other NotFound.view
 
@@ -104,6 +143,10 @@ view model =
             -- This is for the very intial page load, while we are loading
             -- data via HTTP. We could also render a spinner here.
             Html.text ""
+                |> layout Page.Other
+
+        Errored subModel ->
+            Errored.view subModel
                 |> layout Page.Other
 
         Home subModel ->
@@ -129,7 +172,7 @@ initialPage =
 init : Value -> Location -> ( Model, Cmd Msg )
 init val location =
     setRoute (Route.fromLocation location)
-        { page = initialPage
+        { pageState = Loaded initialPage
         }
 
 
