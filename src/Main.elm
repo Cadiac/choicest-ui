@@ -8,6 +8,7 @@ import Page.Errored as Errored exposing (PageLoadError)
 import Page.Home as Home
 import Page.NotFound as NotFound
 import Route exposing (..)
+import Task
 import View.Page as Page exposing (ActivePage)
 
 
@@ -37,6 +38,7 @@ type PageState
 
 type Msg
     = SetRoute (Maybe Route)
+    | HomeLoaded (Result PageLoadError Home.Model)
     | HomeMsg Home.Msg
     | AboutMsg About.Msg
 
@@ -44,6 +46,11 @@ type Msg
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute route model =
     let
+        -- not used yet
+        transition toMsg task =
+            { model | pageState = TransitioningFrom (getPage model.pageState) }
+                ! [ Task.attempt toMsg task ]
+
         errored =
             pageErrored model
     in
@@ -53,7 +60,7 @@ setRoute route model =
             ( model, Cmd.none )
 
         Just Route.Home ->
-            ( { model | pageState = Loaded (Home Home.init) }, Cmd.none )
+            transition HomeLoaded Home.init
 
         Just Route.About ->
             ( { model | pageState = Loaded (About About.init) }, Cmd.none )
@@ -87,6 +94,12 @@ updatePage page msg model =
         -- Update for page transitions
         ( SetRoute route, _ ) ->
             setRoute route model
+
+        ( HomeLoaded (Ok subModel), _ ) ->
+            { model | pageState = Loaded (Home subModel) } ! []
+
+        ( HomeLoaded (Err error), _ ) ->
+            { model | pageState = Loaded (Errored error) } ! []
 
         -- Update for page specfic msgs
         ( HomeMsg subMsg, Home subModel ) ->
