@@ -37,11 +37,11 @@ update msg model =
             ( { model | counter = model.counter + 1 }, Cmd.none )
 
 
-init : Task PageLoadError Model
-init =
+init : String -> Task PageLoadError Model
+init apiUrl =
     let
         loadCollection =
-            Request.Collection.get (stringToSlug "the-best-collection")
+            Request.Collection.get apiUrl (stringToSlug "the-best-collection")
                 |> Http.toTask
 
         handleLoadError _ =

@@ -15,8 +15,14 @@ import View.Page as Page exposing (ActivePage)
 ---- MODEL ----
 
 
+type alias Flags =
+    { apiUrl : String }
+
+
 type alias Model =
-    { pageState : PageState }
+    { pageState : PageState
+    , apiUrl : String
+    }
 
 
 type Page
@@ -60,7 +66,7 @@ setRoute route model =
             ( model, Cmd.none )
 
         Just Route.Home ->
-            transition HomeLoaded Home.init
+            transition HomeLoaded (Home.init model.apiUrl)
 
         Just Route.About ->
             ( { model | pageState = Loaded (About About.init) }, Cmd.none )
@@ -182,14 +188,15 @@ initialPage =
     Blank
 
 
-init : Value -> Location -> ( Model, Cmd Msg )
-init val location =
+init : Flags -> Location -> ( Model, Cmd Msg )
+init flags location =
     setRoute (Route.fromLocation location)
         { pageState = Loaded initialPage
+        , apiUrl = flags.apiUrl
         }
 
 
-main : Program Value Model Msg
+main : Program Flags Model Msg
 main =
     Navigation.programWithFlags (Route.fromLocation >> SetRoute)
         { init = init
