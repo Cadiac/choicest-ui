@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Cadiac/choicest-ui.svg?branch=master)](https://travis-ci.org/Cadiac/choicest-ui)
+
 This project is bootstrapped with [Create Elm App](https://github.com/halfzebra/create-elm-app).
 
 Below you will find some information on how to perform basic tasks.  
