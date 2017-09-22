@@ -1,5 +1,6 @@
 module Route exposing (Route(..), fromLocation, href, modifyUrl)
 
+import Data.Collection as Collection exposing (Collection)
 import Html exposing (Attribute)
 import Html.Attributes as Attr
 import Navigation exposing (Location)
@@ -12,6 +13,7 @@ import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string)
 type Route
     = Home
     | About
+    | Collection Collection.Slug
 
 
 
@@ -24,6 +26,7 @@ routeMatcher =
     oneOf
         [ Url.map Home (s "")
         , Url.map About (s "about")
+        , Url.map Collection (s "collections" </> Collection.slugParser)
 
         --    When needing parameters on the form base/item/3
         --    , Url.map Item (s "item" </> string)
@@ -45,9 +48,12 @@ routeToString page =
                 About ->
                     [ "about" ]
 
-        --    When needing parameters on the form base/item/3
-        --                    Item id ->
-        --                    [ "item",  id ]
+                Collection slug ->
+                    [ "collections", Collection.slugToString slug ]
+
+        --      When needing parameters on the form base/item/3
+        --      Item id ->
+        --          [ "item",  id ]
     in
     "#/" ++ String.join "/" pagePath
 

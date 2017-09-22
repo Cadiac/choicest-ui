@@ -1,12 +1,16 @@
 module Main exposing (..)
 
+import Data.AuthToken as AuthToken exposing (AuthToken)
+import Data.Session as Session exposing (Session)
 import Html exposing (Html)
-import Json.Decode as Decode exposing (Value)
+import Json.Decode as Decode exposing (Value, nullable)
 import Navigation exposing (Location)
 import Page.About as About
+import Page.Collection as Collection
 import Page.Errored as Errored exposing (PageLoadError)
 import Page.Home as Home
 import Page.NotFound as NotFound
+import Ports
 import Route exposing (..)
 import Task
 import View.Page as Page exposing (ActivePage)
@@ -15,12 +19,9 @@ import View.Page as Page exposing (ActivePage)
 ---- MODEL ----
 
 
-type alias Flags =
-    { apiUrl : String }
-
-
 type alias Model =
     { pageState : PageState
+    , session : Session
     , apiUrl : String
     }
 
@@ -30,6 +31,7 @@ type Page
     | NotFound
     | Home Home.Model
     | About About.Model
+    | Collection Collection.Model
     | Errored PageLoadError
 
 
@@ -45,8 +47,11 @@ type PageState
 type Msg
     = SetRoute (Maybe Route)
     | HomeLoaded (Result PageLoadError Home.Model)
+    | CollectionLoaded (Result PageLoadError Collection.Model)
     | HomeMsg Home.Msg
+    | CollectionMsg Collection.Msg
     | AboutMsg About.Msg
+    | SetSession (Maybe AuthToken)
 
 
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
@@ -67,6 +72,9 @@ setRoute route model =
 
         Just Route.Home ->
             transition HomeLoaded (Home.init model.apiUrl)
+
+        Just (Route.Collection slug) ->
+            transition CollectionLoaded (Collection.init model.apiUrl slug)
 
         Just Route.About ->
             ( { model | pageState = Loaded (About About.init) }, Cmd.none )
@@ -107,9 +115,18 @@ updatePage page msg model =
         ( HomeLoaded (Err error), _ ) ->
             { model | pageState = Loaded (Errored error) } ! []
 
+        ( CollectionLoaded (Ok subModel), _ ) ->
+            { model | pageState = Loaded (Collection subModel) } ! []
+
+        ( CollectionLoaded (Err error), _ ) ->
+            { model | pageState = Loaded (Errored error) } ! []
+
         -- Update for page specfic msgs
         ( HomeMsg subMsg, Home subModel ) ->
             toPage Home HomeMsg Home.update subMsg subModel
+
+        ( CollectionMsg subMsg, Collection subModel ) ->
+            toPage Collection CollectionMsg Collection.update subMsg subModel
 
         ( AboutMsg subMsg, About subModel ) ->
             toPage About AboutMsg About.update subMsg subModel
@@ -121,17 +138,9 @@ updatePage page msg model =
 
         ( _, _ ) ->
             -- Disregard incoming messages that arrived for the wrong page
-            model ! []
-
-
-getPage : PageState -> Page
-getPage pageState =
-    case pageState of
-        Loaded page ->
-            page
-
-        TransitioningFrom page ->
-            page
+            -- model ! []
+            -- Lets just crash for now
+            Debug.crash "Incoming message for the wrong page"
 
 
 
@@ -173,6 +182,11 @@ viewPage isLoading page =
                 |> layout Page.Home
                 |> Html.map HomeMsg
 
+        Collection subModel ->
+            Collection.view subModel
+                |> layout Page.Collection
+                |> Html.map CollectionMsg
+
         About subModel ->
             About.view subModel
                 |> layout Page.About
@@ -180,7 +194,62 @@ viewPage isLoading page =
 
 
 
+---- SUBSCRIPTIONS ----
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    Sub.batch
+        [ pageSubscriptions (getPage model.pageState)
+        , Sub.map SetSession sessionChange
+        ]
+
+
+sessionChange : Sub (Maybe AuthToken)
+sessionChange =
+    Ports.onTokenChange (Decode.decodeValue AuthToken.decoder >> Result.toMaybe)
+
+
+getPage : PageState -> Page
+getPage pageState =
+    case pageState of
+        Loaded page ->
+            page
+
+        TransitioningFrom page ->
+            page
+
+
+pageSubscriptions : Page -> Sub Msg
+pageSubscriptions page =
+    case page of
+        Blank ->
+            Sub.none
+
+        Errored _ ->
+            Sub.none
+
+        NotFound ->
+            Sub.none
+
+        Home _ ->
+            Sub.none
+
+        Collection _ ->
+            Sub.none
+
+        About _ ->
+            Sub.none
+
+
+
 ---- PROGRAM ----
+
+
+type alias Flags =
+    { apiUrl : String
+    , token : Maybe String
+    }
 
 
 initialPage : Page
@@ -193,6 +262,7 @@ init flags location =
     setRoute (Route.fromLocation location)
         { pageState = Loaded initialPage
         , apiUrl = flags.apiUrl
+        , session = { token = AuthToken.decodeTokenFromFlags flags.token }
         }
 
 

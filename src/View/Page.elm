@@ -1,5 +1,6 @@
 module View.Page exposing (ActivePage(..), layout)
 
+import Data.Collection as Collection exposing (stringToSlug)
 import Html exposing (..)
 import Route exposing (Route)
 
@@ -7,6 +8,7 @@ import Route exposing (Route)
 type ActivePage
     = Other
     | Home
+    | Collection
     | About
 
 
@@ -31,6 +33,9 @@ viewHeader page =
             , text " | "
             , a [ Route.href Route.About ]
                 [ text "About" ]
+            , text " | "
+            , a [ Route.href (Route.Collection (stringToSlug "the-best-collection")) ]
+                [ text "Collection" ]
             ]
         , hr [] []
         ]

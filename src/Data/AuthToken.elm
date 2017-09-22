@@ -1,4 +1,4 @@
-module Data.AuthToken exposing (AuthToken, decoder, encode, withAuthorization)
+module Data.AuthToken exposing (AuthToken, decodeTokenFromFlags, decoder, encode, withAuthorization)
 
 import HttpBuilder exposing (RequestBuilder, withHeader)
 import Json.Decode as Decode exposing (Decoder)
@@ -18,6 +18,17 @@ decoder : Decoder AuthToken
 decoder =
     Decode.string
         |> Decode.map AuthToken
+
+
+decodeTokenFromFlags : Maybe String -> Maybe AuthToken
+decodeTokenFromFlags token =
+    case token of
+        Just string ->
+            Decode.decodeString decoder string
+                |> Result.toMaybe
+
+        Nothing ->
+            Nothing
 
 
 withAuthorization : Maybe AuthToken -> RequestBuilder a -> RequestBuilder a
