@@ -86,7 +86,7 @@ create apiUrl data =
             Encode.object [ "collection" => collection ]
                 |> Http.jsonBody
     in
-    (apiUrl ++ "/collection")
+    (apiUrl ++ "/collections")
         |> HttpBuilder.post
         |> withBody body
         |> withExpect expect
@@ -112,7 +112,7 @@ update apiUrl collectionId data token =
             Encode.object [ "collection" => collection ]
                 |> Http.jsonBody
     in
-    (apiUrl ++ "/collection/" ++ toString collectionId)
+    (apiUrl ++ "/collections/" ++ toString collectionId)
         |> HttpBuilder.put
         |> withAuthorization (Just token)
         |> withBody body
@@ -122,7 +122,7 @@ update apiUrl collectionId data token =
 
 delete : String -> Int -> AuthToken -> Http.Request ()
 delete apiUrl collectionId token =
-    (apiUrl ++ "/collection/" ++ toString collectionId)
+    (apiUrl ++ "/collections/" ++ toString collectionId)
         |> HttpBuilder.delete
         |> withAuthorization (Just token)
         |> HttpBuilder.toRequest

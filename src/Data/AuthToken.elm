@@ -1,12 +1,26 @@
-module Data.AuthToken exposing (AuthToken, decodeTokenFromFlags, decoder, encode, withAuthorization)
+module Data.AuthToken
+    exposing
+        ( AuthToken
+        , JwtResponse
+        , decodeTokenFromFlags
+        , decoder
+        , encode
+        , loginDecoder
+        , withAuthorization
+        )
 
 import HttpBuilder exposing (RequestBuilder, withHeader)
 import Json.Decode as Decode exposing (Decoder)
+import Json.Decode.Pipeline as Pipeline exposing (custom, decode, hardcoded, required)
 import Json.Encode as Encode exposing (Value)
 
 
 type AuthToken
     = AuthToken String
+
+
+type alias JwtResponse =
+    { jwt : AuthToken }
 
 
 encode : AuthToken -> Value
@@ -40,3 +54,9 @@ withAuthorization maybeToken builder =
 
         Nothing ->
             builder
+
+
+loginDecoder : Decoder JwtResponse
+loginDecoder =
+    decode JwtResponse
+        |> required "jwt" decoder
