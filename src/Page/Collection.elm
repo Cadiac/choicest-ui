@@ -1,10 +1,11 @@
 module Page.Collection exposing (Model, Msg, init, loadImages, update, view)
 
+import Css exposing (..)
 import Data.Collection as Collection exposing (Collection, stringToSlug)
 import Data.Image as Image exposing (Image)
-import Html exposing (Html, button, div, h1, h2, img, text)
-import Html.Attributes exposing (class, src)
-import Html.Events exposing (onClick)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (class, css, href, src)
+import Html.Styled.Events exposing (onClick)
 import Http
 import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
 import Request.Collection
@@ -24,7 +25,7 @@ type alias Model =
 
 
 
--- UPDATE --
+---- UPDATE ----
 
 
 type Msg
@@ -72,12 +73,55 @@ init apiUrl slug =
         |> Task.mapError handleLoadError
 
 
+
+---- VIEW ----
+
+
+viewImages : List Image -> Html Msg
+viewImages images =
+    div [ class "mdl-grid" ] (List.map viewImage images)
+
+
+viewImage : Image -> Html Msg
+viewImage picture =
+    div
+        [ class "demo-card-image mdl-card mdl-shadow--2dp"
+        , css
+            [ width (px 256)
+            , height (px 256)
+            , margin (px 16)
+            , backgroundImage (url picture.url)
+            , backgroundPosition center
+            , backgroundSize cover
+            ]
+        ]
+        [ div [ class "mdl-card__title mdl-card--expand" ] []
+        , div
+            [ class "mdl-card__actions"
+            , css
+                [ height (px 52)
+                , padding (px 16)
+                , backgroundColor (rgba 0 0 0 0.2)
+                ]
+            ]
+            [ span
+                [ css
+                    [ color (rgb 255 255 255)
+                    , fontSize (px 14)
+                    , fontWeight (int 500)
+                    ]
+                ]
+                [ text picture.filename ]
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div []
         [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "foobar" ]
-        , text (toString model.counter)
+        , h1 [] [ text model.collection.name ]
+        , viewImages model.images
         , div []
             [ button
                 [ onClick Increment

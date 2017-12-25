@@ -1,8 +1,8 @@
 module Page.About exposing (Model, Msg, init, update, view)
 
-import Html exposing (Html, button, div, h1, h2, img, text)
-import Html.Attributes exposing (class, src)
-import Html.Events exposing (onClick)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (class, css, href, src)
+import Html.Styled.Events exposing (onClick)
 
 
 ---- MODEL ----

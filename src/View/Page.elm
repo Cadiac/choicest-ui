@@ -1,7 +1,7 @@
 module View.Page exposing (ActivePage(..), layout)
 
 import Data.Collection as Collection exposing (stringToSlug)
-import Html exposing (..)
+import Html.Styled exposing (..)
 import Route exposing (Route)
 
 

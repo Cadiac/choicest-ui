@@ -1,8 +1,8 @@
 module Route exposing (Route(..), fromLocation, href, modifyUrl)
 
 import Data.Collection as Collection exposing (Collection)
-import Html exposing (Attribute)
-import Html.Attributes as Attr
+import Html.Styled exposing (Attribute)
+import Html.Styled.Attributes as Attr
 import Navigation exposing (Location)
 import UrlParser as Url exposing ((</>), Parser, oneOf, parseHash, s, string)
 

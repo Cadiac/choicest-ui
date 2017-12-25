@@ -8,8 +8,8 @@ of a giant walrus exploding the golden gate bridge with laser beams. Pew pew!
 
 -}
 
-import Html exposing (Html, div, h1, main_, p, text)
-import Html.Attributes exposing (alt, class, id, tabindex)
+import Html.Styled exposing (..)
+import Html.Styled.Attributes exposing (alt, class, id, tabindex)
 import View.Page as Page exposing (ActivePage)
 
 

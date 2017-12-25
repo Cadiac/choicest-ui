@@ -2,7 +2,7 @@ module Main exposing (..)
 
 import Data.AuthToken as AuthToken exposing (AuthToken)
 import Data.Session as Session exposing (Session)
-import Html exposing (Html)
+import Html.Styled as Html
 import Json.Decode as Decode exposing (Value, nullable)
 import Navigation exposing (Location)
 import Page.About as About
@@ -149,7 +149,7 @@ updatePage page msg model =
 ---- VIEW ----
 
 
-view : Model -> Html Msg
+view : Model -> Html.Html Msg
 view model =
     case model.pageState of
         Loaded page ->
@@ -159,7 +159,7 @@ view model =
             viewPage True page
 
 
-viewPage : Bool -> Page -> Html Msg
+viewPage : Bool -> Page -> Html.Html Msg
 viewPage isLoading page =
     let
         layout =
@@ -272,7 +272,7 @@ main : Program Flags Model Msg
 main =
     Navigation.programWithFlags (Route.fromLocation >> SetRoute)
         { init = init
-        , view = view
+        , view = view >> Html.toUnstyled
         , update = update
         , subscriptions = always Sub.none
         }
