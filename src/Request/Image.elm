@@ -1,4 +1,4 @@
-module Request.Image exposing (list, single, slug)
+module Request.Image exposing (create, list, single)
 
 import Data.AuthToken as AuthToken exposing (AuthToken, withAuthorization)
 import Data.Image as Image exposing (Image)
@@ -11,7 +11,7 @@ import Util exposing ((=>))
 -- SINGLE --
 
 
-single : String -> Int -> Http.Request Image
+single : String -> Int -> Int -> Http.Request Image
 single apiUrl collectionId imageId =
     let
         expect =
@@ -28,7 +28,7 @@ single apiUrl collectionId imageId =
 -- LIST --
 
 
-list : String -> Http.Request (List Image)
+list : String -> Int -> Http.Request (List Image)
 list apiUrl collectionId =
     let
         expect =
@@ -64,7 +64,7 @@ create apiUrl collectionId data =
 
         image =
             Encode.object
-                [ "original_filename" => Encode.string data.name
+                [ "original_filename" => Encode.string data.original_filename
                 , "file_size" => Encode.int data.file_size
                 , "description" => Encode.string data.description
                 , "content_type" => Encode.string data.content_type

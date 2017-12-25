@@ -41,7 +41,7 @@ init : String -> Task PageLoadError Model
 init apiUrl =
     let
         loadCollection =
-            Request.Collection.slug apiUrl (stringToSlug "the-best-collection")
+            Request.Collection.slug apiUrl (stringToSlug "test-collection")
                 |> Http.toTask
 
         handleLoadError _ =

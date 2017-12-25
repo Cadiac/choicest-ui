@@ -13,6 +13,7 @@ import Page.NotFound as NotFound
 import Ports
 import Route exposing (..)
 import Task
+import Util exposing ((=>))
 import View.Page as Page exposing (ActivePage)
 
 
@@ -116,7 +117,8 @@ updatePage page msg model =
             { model | pageState = Loaded (Errored error) } ! []
 
         ( CollectionLoaded (Ok subModel), _ ) ->
-            { model | pageState = Loaded (Collection subModel) } ! []
+            { model | pageState = Loaded (Collection subModel) }
+                => Cmd.map CollectionMsg (Collection.loadImages model.apiUrl subModel.collection.id)
 
         ( CollectionLoaded (Err error), _ ) ->
             { model | pageState = Loaded (Errored error) } ! []

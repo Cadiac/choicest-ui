@@ -34,7 +34,7 @@ viewHeader page =
             , a [ Route.href Route.About ]
                 [ text "About" ]
             , text " | "
-            , a [ Route.href (Route.Collection (stringToSlug "the-best-collection")) ]
+            , a [ Route.href (Route.Collection (stringToSlug "test-collection")) ]
                 [ text "Collection" ]
             ]
         , hr [] []
