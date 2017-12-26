@@ -10,3 +10,13 @@ img {
   margin: 20px 0;
   max-width: 200px;
 }
+
+.mdl-layout__drawer-button {
+  /* This background is dark, so we set text to white. Use 87% black instead if
+     your background is light. */
+  color: white;
+}
+
+.mdl-layout__header {
+  color: white;
+}
