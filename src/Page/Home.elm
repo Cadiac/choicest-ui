@@ -1,8 +1,9 @@
 module Page.Home exposing (Model, Msg, init, update, view)
 
+import Css exposing (..)
 import Data.Collection as Collection exposing (Collection, stringToSlug)
 import Html.Styled exposing (..)
-import Html.Styled.Attributes exposing (class, src)
+import Html.Styled.Attributes exposing (class, css, href, src)
 import Html.Styled.Events exposing (onClick)
 import Http
 import Page.Errored as Errored exposing (PageLoadError, pageLoadError)
@@ -59,7 +60,7 @@ viewCollections collections =
 
 viewCollection : Collection -> Html Msg
 viewCollection collection =
-    div [ class "mdl-cell mdl-cell--3-col mdl-card mdl-shadow--2dp" ]
+    div [ class "mdl-cell mdl-cell--3-col mdl-cell--12-col-tablet mdl-cell--12-col-phone mdl-card mdl-shadow--3dp" ]
         [ div [ class "mdl-card__title mdl-card--expand" ]
             [ h2 [ class "mdl-card__title-text" ]
                 [ text collection.name ]
@@ -75,16 +76,25 @@ viewCollection collection =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text model.pageTitle ]
-        , text (toString model.counter)
-        , viewCollections model.collections
-        , div []
+    div
+        [ css
+            [ displayFlex
+            , flexDirection column
+            , justifyContent spaceBetween
+            , alignItems flexStart
+            , height (pct 100)
+            ]
+        ]
+        [ div []
+            [ h2 [ class "mdl-typography--display-3", css [ padding (px 16) ] ]
+                [ text model.pageTitle ]
+            , viewCollections model.collections
+            ]
+        , div [ css [ alignSelf flexEnd, marginBottom (px 64) ] ]
             [ button
-                [ onClick Increment
-                , class "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent"
+                [ class "mdl-button mdl-js-button mdl-button--fab mdl-button--colored" ]
+                [ i [ class "material-icons" ]
+                    [ text "add" ]
                 ]
-                [ text "Button" ]
             ]
         ]

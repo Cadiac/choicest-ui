@@ -38,8 +38,7 @@ init =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text model.pageTitle ]
+        [ h1 [] [ text model.pageTitle ]
         , h2 [] [ text model.pageBody ]
         , text (toString model.counter)
         , div []

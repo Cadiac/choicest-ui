@@ -2,7 +2,7 @@ import './main.css';
 import { Main } from './Main.elm';
 import registerServiceWorker from './registerServiceWorker';
 
-const app = Main.embed(document.getElementById('root'), {
+const app = Main.fullscreen({
   apiUrl: process.env.ELM_APP_API_URL,
   token: localStorage.token || null,
 });

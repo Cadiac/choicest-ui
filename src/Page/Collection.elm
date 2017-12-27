@@ -119,8 +119,7 @@ viewImage picture =
 view : Model -> Html Msg
 view model =
     div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text model.collection.name ]
+        [ h1 [] [ text model.collection.name ]
         , viewImages model.images
         , div []
             [ button
